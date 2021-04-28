@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>To Do</title>
+        <link rel="icon" href="media/to-do-list.png" type="image/x-icon" />
+        <script src="https://unpkg.com/vue@next"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+            integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+            crossorigin="anonymous"
+        ></script>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap");
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                border: 0;
+                outline: 0;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: "Montserrat";
+                background-color: #1e1e2e;
+            }
+            #app {
+                margin: 0;
+                padding: 0;
+            }
+            .nav {
+                height: 12vh;
+                background-color: #1e1e2e;
+                color: #eeeeee;
+                font-size: 250%;
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+            }
+            .brand {
+                margin-left: 20%;
+            }
+            .main-body {
+                height: 100vh;
+                background-color: #1e1e2e;
+            }
+            .navbar-outer {
+                box-shadow: 0px 8px 8px -6px rgba(0, 0, 0, 0.5);
+            }
+            .form-styler {
+                display: flex;
+                justify-content: center;
+                padding-top: 30px;
+            }
+            .input-box {
+                width: 600px;
+                height: 200%;
+                background-color: #27293d;
+                border: none;
+                border-radius: 4px;
+                color: #eeeeee;
+                font-size: 120%;
+                padding: 1px 20px;
+                margin: 1px 0;
+                box-sizing: border-box;
+                transition: 0.3s ease-in-out;
+            }
+            .input-box {
+                box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+            }
+            *:focus {
+                outline: none;
+                border-bottom: 2px solid #4e2a84;
+            }
+
+            ::placeholder {
+                color: #eeeeee;
+                font-family: "Montserrat";
+                opacity: 0.5;
+            }
+            .tasks {
+                margin-top: 1%;
+                margin-top: 80px;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding-right: 10px;
+            }
+
+            .tasks-container {
+                margin-top: 10px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .tasks-title {
+                width: 600px;
+                border-radius: 4px;
+                color: #eeeeee;
+                font-size: 25px;
+                background: rgb(238, 71, 42);
+                background: linear-gradient(
+                    309deg,
+                    rgba(238, 71, 42, 1) 0%,
+                    rgba(237, 89, 139, 1) 61%,
+                    rgba(237, 85, 116, 1) 100%
+                );
+                box-shadow: 0px 8px 8px -6px rgba(0, 0, 0, 0.5);
+            }
+
+            .task-title-text {
+                padding: 10px 20px;
+            }
+            .tasks-cross-button,
+            .tasks-done-button {
+                margin: 20px;
+            }
+            .task-done-button-text,
+            .task-cross-button-text,
+            .completed-tasks-delete {
+                text-align: center;
+                font-size: 30px;
+                height: 35px;
+                width: 40px;
+                border: 2px solid rgba(237, 89, 139, 1);
+                border-radius: 3px;
+                color: white;
+                box-shadow: 0px 8px 8px -6px rgba(0, 0, 0, 0.5);
+                transition: 0.3s;
+            }
+            .completed-tasks-delete {
+                margin-top: 10px;
+                height: 120%;
+            }
+            .task-done-button-text:hover,
+            .task-cross-button-text:hover,
+            .completed-tasks-delete-text:hover {
+                cursor: pointer;
+                color: rgba(237, 89, 139, 1);
+                background: rgb(92, 63, 140);
+                background: linear-gradient(
+                    298deg,
+                    rgba(92, 63, 140, 1) 40%,
+                    rgba(120, 81, 169, 1) 93%
+                );
+            }
+            .complete-tasks {
+                padding-top: 40px;
+                display: flex;
+                justify-content: center;
+                flex-direction: column;
+                align-items: center;
+            }
+            .completed-tasks-title {
+                color: #eeeeee;
+                font-size: 150%;
+                border-bottom: 1px solid rgba(237, 89, 139, 1);
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <div class="navbar-outer">
+                <div class="nav">
+                    <div class="brand">To Do!</div>
+                </div>
+            </div>
+
+            <div class="main-body">
+                <div class="form-styler">
+                    <form @submit.prevent="addtask">
+                        <input
+                            v-model="cur_task"
+                            type="text"
+                            class="input-box"
+                            placeholder="Add Task"
+                        />
+                        <span class="focus-border"></span>
+                    </form>
+                </div>
+                <div class="tasks">
+                    <div v-for="task in tasks">
+                        <div class="tasks-container" v-if="!task.iscompleted">
+                            <div class="tasks-title">
+                                <div class="task-title-text">
+                                    {{ task.title }}
+                                </div>
+                            </div>
+                            <div
+                                class="tasks-cross-button"
+                                @click="deletetask(task)"
+                            >
+                                <div class="task-cross-button-text">
+                                    <span>&#10008;</span>
+                                </div>
+                            </div>
+                            <div
+                                class="tasks-done-button"
+                                @click="completetask(task)"
+                            >
+                                <div class="task-done-button-text">
+                                    <span>&#10003;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="complete-tasks">
+                    <div>
+                        <div class="completed-tasks-title">Completed tasks</div>
+                    </div>
+
+                    <div class="tasks-container" v-for="task in tasks">
+                        <div class="tasks-title" v-if="task.iscompleted">
+                            <div class="task-title-text">{{ task.title }}</div>
+                        </div>
+                    </div>
+                    <div
+                        class="completed-tasks-delete"
+                        @click="completedtaskdelete"
+                    >
+                        <div class="completed-tasks-delete-text">
+                            <span> &#128465;</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+<script>
+    const App = {
+        name: "Home",
+        data: () => ({
+            cur_task: "",
+            tasks: [{ title: "Homework" }, { title: "Exercise" }],
+        }),
+        mounted() {
+            this.getdata();
+        },
+        methods: {
+            addtask() {
+                console.log("Task Added");
+                this.putdata();
+                this.cur_task = "";
+            },
+            async getdata() {
+                console.log(this.tasks);
+                await axios
+                    .get("http://192.168.43.228:8000/task/getapi")
+                    .then((response) => {
+                        var resp_dict = response["data"];
+                        console.log(resp_dict);
+                        this.tasks = resp_dict["tasks"];
+                    });
+            },
+            async putdata() {
+                console.log(this.tasks);
+                await axios
+                    .post("http://192.168.43.228:8000/task/postapi", {
+                        title: this.cur_task,
+                    })
+                    .then((response) => {
+                        var resp_dict = response["data"];
+                        console.log(resp_dict);
+                        this.getdata();
+                    });
+            },
+            async deletetask(task) {
+                console.log(this.tasks);
+                await axios
+                    .post("http://192.168.43.228:8000/task/deleteapi", {
+                        title: task.title,
+                    })
+                    .then((response) => {
+                        var resp_dict = response["data"];
+
+                        this.getdata();
+                    });
+            },
+            async completetask(task) {
+                console.log("Completed");
+                await axios
+                    .post("http://192.168.43.228:8000/task/completeapi", {
+                        title: task.title,
+                    })
+                    .then((response) => {
+                        var resp_dict = response["data"];
+
+                        this.getdata();
+                        console.log(this.tasks);
+                    });
+            },
+            async completedtaskdelete() {
+                await axios
+                    .get("http://192.168.43.228:8000/task/comptskdelapi")
+                    .then((response) => {
+                        var resp_dict = response["data"];
+                        console.log(resp_dict);
+                        this.tasks = resp_dict["tasks"];
+                    });
+            },
+        },
+    };
+
+    Vue.createApp(App).mount("#app");
+</script>
